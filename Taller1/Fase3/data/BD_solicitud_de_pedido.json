@@ -1,0 +1,74 @@
+{
+  "pedidos_ecomarket": [
+    {
+      "numero_seguimiento": "EM-1001",
+      "pedido": "EM-1001",
+      "estado": "Entregado",
+      "fecha_estimada": "2026-03-28",
+      "link": "https://tracking.ecomarket.com/EM-1001"
+    },
+    {
+      "numero_seguimiento": "EM-1002",
+      "pedido": "EM-1002",
+      "estado": "En tránsito",
+      "fecha_estimada": "2026-04-04",
+      "link": "https://tracking.ecomarket.com/EM-1002"
+    },
+    {
+      "numero_seguimiento": "EM-1003",
+      "pedido": "EM-1003",
+      "estado": "Preparando envío",
+      "fecha_estimada": "2026-04-06",
+      "link": "https://tracking.ecomarket.com/EM-1003"
+    },
+    {
+      "numero_seguimiento": "EM-1004",
+      "pedido": "EM-1004",
+      "estado": "Retrasado",
+      "fecha_estimada": "2026-04-08",
+      "link": "https://tracking.ecomarket.com/EM-1004"
+    },
+    {
+      "numero_seguimiento": "EM-1005",
+      "pedido": "EM-1005",
+      "estado": "Cancelado",
+      "fecha_estimada": "No aplica",
+      "link": "https://tracking.ecomarket.com/EM-1005"
+    },
+    {
+      "numero_seguimiento": "EM-1006",
+      "pedido": "EM-1006",
+      "estado": "Entregado",
+      "fecha_estimada": "2026-03-30",
+      "link": "https://tracking.ecomarket.com/EM-1006"
+    },
+    {
+      "numero_seguimiento": "EM-1007",
+      "pedido": "EM-1007",
+      "estado": "En tránsito",
+      "fecha_estimada": "2026-04-05",
+      "link": "https://tracking.ecomarket.com/EM-1007"
+    },
+    {
+      "numero_seguimiento": "EM-1008",
+      "pedido": "EM-1008",
+      "estado": "Preparando envío",
+      "fecha_estimada": "2026-04-07",
+      "link": "https://tracking.ecomarket.com/EM-1008"
+    },
+    {
+      "numero_seguimiento": "EM-1009",
+      "pedido": "EM-1009",
+      "estado": "Retrasado",
+      "fecha_estimada": "2026-04-09",
+      "link": "https://tracking.ecomarket.com/EM-1009"
+    },
+    {
+      "numero_seguimiento": "EM-1010",
+      "pedido": "EM-1010",
+      "estado": "Entregado",
+      "fecha_estimada": "2026-03-27",
+      "link": "https://tracking.ecomarket.com/EM-1010"
+    }
+  ]
+}

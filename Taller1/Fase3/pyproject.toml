@@ -1,0 +1,25 @@
+# Instalación recomendada (desde esta carpeta Taller1/Fase3):
+#   1. python -m venv .venv
+#   2. Activar: Windows → .venv\Scripts\activate
+#              Linux/macOS → source .venv/bin/activate
+#   3. pip install --upgrade pip
+#   4. pip install .
+#
+# El directorio .venv debe estar en .gitignore (raíz del repo).
+
+[project]
+name = "fase3-ecomarket"
+version = "0.1.0"
+description = "Mini chat Fase 3: prompts + Ollama"
+readme = "Fase3.md"
+requires-python = ">=3.10"
+dependencies = [
+    "requests>=2.28.0",
+]
+
+[tool.setuptools]
+py-modules = ["app", "model", "data_loader", "prompt_builder", "classifier"]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"

@@ -1,0 +1,30 @@
+{
+    "politicas_devolucion_ecomarket": {
+      "productos_con_devolucion": [
+        {
+          "categoria": "Botellas reutilizables",
+          "condicion": "Hasta 30 días si no han sido usadas"
+        },
+        {
+          "categoria": "Bolsas ecológicas",
+          "condicion": "Hasta 15 días"
+        },
+        {
+          "categoria": "Organizadores reciclados",
+          "condicion": "Hasta 30 días"
+        },
+        {
+          "categoria": "Ropa sostenible",
+          "condicion": "Hasta 20 días con etiquetas originales"
+        }
+      ],
+      "productos_sin_devolucion": [
+        "Productos perecederos",
+        "Productos de higiene personal",
+        "Cosméticos abiertos",
+        "Alimentos orgánicos",
+        "Productos usados o sin empaque original"
+      ],
+      "regla_general": "Para devoluciones aprobadas, el cliente debe indicar número de pedido, motivo de la devolución y estado del producto."
+    }
+  }

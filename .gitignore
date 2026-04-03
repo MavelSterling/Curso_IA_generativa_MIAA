@@ -1,0 +1,44 @@
+# Entorno virtual (crear con: python -m venv .venv)
+.venv/
+venv/
+ENV/
+env/
+
+# Fase 3: artefactos locales (también cubiertos por las reglas generales de abajo)
+Taller1/Fase3/.venv/
+Taller1/Fase3/build/
+Taller1/Fase3/__pycache__/
+Taller1/Fase3/**/__pycache__/
+Taller1/Fase3/fase3_ecomarket.egg-info/
+Taller1/Fase3/fase3_ecomarket.egg-info/*
+
+# Empaquetado e instalación local
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+
+# Caché de Python (cualquier ruta)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Herramientas de prueba / cobertura
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Entornos / IDEs
+.env
+.env.local
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
