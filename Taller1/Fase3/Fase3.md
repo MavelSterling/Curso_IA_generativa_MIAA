@@ -5,8 +5,11 @@ Objetivo: ver en código cómo se arma **contexto + instrucciones** (prompt) a p
 ## Contenido de la carpeta
 
 | Archivo | Rol |
-|--------|-----|
-| `app.py` | Bucle de chat: interpreta la consulta, inyecta datos en la plantilla y llama a **Ollama** (o solo muestra el prompt). |
+| -------- | --- |
+| `app.py` | Interfaz de consola: lee input del usuario, muestra ayuda/salida y delega lógica a otros módulos. |
+| `classifier.py` | Detecta tipo de consulta (`pedido`, `devolucion`, `devolucion_incompleta`, `ayuda`) y extrae datos. |
+| `prompt_builder.py` | Construye prompts finales para pedido/devolución inyectando JSON en las plantillas TXT. |
+| `data_loader.py` | Carga archivos `JSON` y `TXT` desde `data/` y `prompt/`. |
 | `model.py` | Conexión y llamada al LLM vía **Ollama** (arranque, resolución de modelo y generación). |
 | `pyproject.toml` | Dependencias del proyecto (`requests`); instalar con `pip install .` o `pip install -e .` desde esta carpeta. |
 | `data/BD_solicitud_de_pedido.json` | “Base de datos” de ejemplo: al menos 10 pedidos con estado, fecha estimada y enlace de rastreo. |
@@ -14,7 +17,52 @@ Objetivo: ver en código cómo se arma **contexto + instrucciones** (prompt) a p
 | `prompt/prompt_solicitud_pedido.txt` | Plantilla: rol de agente, datos `{{PEDIDOS_ECOMARKET}}`, consulta con `{{tracking_number}}`, instrucciones y formato de salida. |
 | `prompt/prompt_devolucion.txt` | Plantilla: política `{{POLITICAS_DEVOLUCION_ECOMARKET}}`, datos del cliente (`product_name`, etc.) e instrucciones para decidir con empatía. |
 
-Los marcadores `{{...}}` se reemplazan en `app.py` con texto JSON legible para el modelo.
+Los marcadores `{{...}}` se reemplazan en `prompt_builder.py` con texto JSON legible para el modelo.
+
+## Estructura de la aplicación
+
+Árbol principal de la carpeta `Fase3/` (los caminos son relativos a esta carpeta):
+
+```text
+Fase3/
+├── app.py                 # Punto de entrada: consola, comandos, bucle de chat
+├── classifier.py          # Clasificación de la consulta y extracción de datos
+├── prompt_builder.py      # Sustitución de placeholders en plantillas .txt
+├── data_loader.py         # Lectura de JSON/TXT (rutas base a data/ y prompt/)
+├── model.py               # Ollama: salud del servicio, modelo y generación
+├── pyproject.toml         # Dependencias e instalación del paquete
+├── data/
+│   ├── BD_solicitud_de_pedido.json
+│   └── BD_politicas_devolucion.json
+└── prompt/
+    ├── prompt_solicitud_pedido.txt
+    └── prompt_devolucion.txt
+```
+
+### Capas y dependencias entre módulos
+
+| Capa | Archivos | Responsabilidad |
+| ---- | -------- | ----------------- |
+| Presentación | `app.py` | `input`/`print`, ayuda, modo `ECOMARKET_PROMPT_ONLY`, orquestación del flujo. |
+| Intención y datos de usuario | `classifier.py` | Decide si la entrada es pedido, devolución, devolución incompleta o ayuda. |
+| Contexto + prompt | `prompt_builder.py`, `data_loader.py` | Carga datos y plantillas; sustituye `{{...}}` y devuelve el texto final para el modelo. |
+| Proveedor LLM | `model.py` | HTTP a Ollama (`/api/tags`, `/api/chat`, fallback OpenAI si aplica). |
+
+**Orden de dependencias (quién importa a quién):**
+
+- `app.py` importa `classifier`, `prompt_builder` y `model`.
+- `prompt_builder.py` importa `data_loader` (para rutas y lectura de archivos).
+- `classifier.py` no depende de Ollama ni de los prompts (solo reglas sobre el texto).
+
+El ejecutable lógico es `python app.py`; el resto son módulos importados en el mismo directorio.
+
+## Flujo de ejecución
+
+1. El usuario escribe una consulta en consola (`app.py`).
+2. `classifier.py` decide si es estado de pedido, devolución o ayuda.
+3. `prompt_builder.py` arma el prompt con plantillas y datos de `data/*.json`.
+4. `model.py` valida Ollama/modelo y envía el prompt al LLM.
+5. `app.py` imprime la respuesta final o un error entendible.
 
 ## Cómo hablar con el bot
 
@@ -56,7 +104,7 @@ Las respuestas reales las redacta el modelo; lo importante es que **no contradig
 ### Consulta de estado de pedido
 
 | Pregunta (ejemplo en el chat) | Respuesta esperada (contenido mínimo) |
-|--------------------------------|---------------------------------------|
+| -------------------------------- | --------------------------------------- |
 | `¿Estado de mi pedido EM-1002?` | Estado **En tránsito**, fecha estimada **2026-04-04**, enlace `https://tracking.ecomarket.com/EM-1002`, tono cordial. |
 | `¿Qué pasó con EM-1004?` | Estado **Retrasado**, fecha estimada **2026-04-08**, mismo enlace de rastreo, **disculpa breve** por el retraso. |
 | `EM-1005` | Estado **Cancelado**, indicar que **no hay** fecha estimada de entrega (o “No aplica”), enlace si el prompt lo pide para consulta; sin inventar nueva fecha. |
@@ -86,16 +134,31 @@ Si el modelo se aleja de estos hechos, conviene revisar el prompt o los datos in
 
 ## Modelo (solo Ollama)
 
-La app usa la API HTTP de **Ollama** (`/api/tags`, `/api/chat`; si hace falta, `/v1/chat/completions`). Al iniciar, comprueba que el servicio responda; si no, intenta ejecutar `ollama serve` en segundo plano y espera hasta que esté listo (útil en **Google Colab**). Luego **lista los modelos con `/api/tags`**: si el nombre en `OLLAMA_MODEL` no está instalado, el programa termina con un mensaje claro (en Ollama, un **404** en el chat suele significar *modelo no encontrado*, no que falte la ruta `/api/chat`).
+La app usa la API HTTP de **Ollama** (`/api/tags`, `/api/chat`; si hace falta, `/v1/chat/completions`). Al iniciar, comprueba que el servicio responda; si no, intenta ejecutar `ollama serve` en segundo plano y espera hasta que esté listo. Luego lista los modelos con `/api/tags`: si el nombre en `OLLAMA_MODEL` no está instalado, el programa termina con un mensaje explícito.
 
 Variables útiles:
 
 | Variable | Significado |
-|----------|-------------|
+| ---------- | ----------- |
 | `OLLAMA_BASE_URL` | Por defecto `http://127.0.0.1:11434`. |
 | `OLLAMA_HOST` | Por defecto `127.0.0.1:11434` (variable que usa el CLI de Ollama; la app la fija con `setdefault` si hace falta). |
 | `OLLAMA_MODEL` | Por defecto `llama3.2`. Debe coincidir con un modelo que hayas descargado (`ollama pull ...`). |
 | `ECOMARKET_PROMPT_ONLY` | `1` = no llama a Ollama; solo imprime el prompt generado (útil para depurar prompts sin GPU). |
+
+### Errores comunes y cómo resolverlos
+
+1. **Mensaje:** `No se pudo conectar con Ollama ...`  
+   **Causa típica:** servicio apagado o URL incorrecta.  
+   **Solución:** inicia Ollama con `ollama serve` y valida `OLLAMA_BASE_URL`.
+
+2. **Mensaje:** `El modelo llama3.2 no está instalado.`  
+   **Causa típica:** `OLLAMA_MODEL` no coincide con lo descargado.  
+   **Solución:** instala ese modelo (`ollama pull llama3.2`) o ajusta la variable al modelo existente.
+
+3. **Caso frecuente en clase:** instalaste `llama3.1`, pero configuraste `OLLAMA_MODEL=llama3.2`.  
+   **Qué hacer:** alinea ambos valores.  
+   - Opción A: `ollama pull llama3.2`  
+   - Opción B: `$env:OLLAMA_MODEL="llama3.1"` (PowerShell)
 
 ### Ejemplo: `llama3.1` en Windows (PowerShell)
 
@@ -109,15 +172,6 @@ python app.py
 
 La variable `OLLAMA_MODEL` solo afecta a **esa** ventana de PowerShell hasta que la cierres (si quieres dejarla fija en la sesión, puedes repetir el `$env:OLLAMA_MODEL=...` antes de cada ejecución o configurarla en el sistema).
 
-### Entorno tipo Google Colab (instalación)
-
-En una celda del cuaderno puedes instalar dependencias del sistema y Ollama antes de ejecutar `app.py`:
-
-```bash
-apt-get update -qq && apt-get install -y zstd
-if ! command -v ollama >/dev/null 2>&1; then curl -fsSL https://ollama.com/install.sh | sh; else echo "Ollama ya está instalado."; fi
-```
-
 Luego instala el paquete Python (desde la carpeta que contiene `pyproject.toml`):
 
 ```bash
@@ -130,10 +184,3 @@ Descarga el modelo y arranca el chat (Ollama puede iniciarse solo al correr `app
 ollama pull llama3.2
 python app.py
 ```
-
-## Idea pedagógica
-
-1. **Solicitud de pedido:** el modelo solo debe usar filas presentes en el JSON; el prompt prohíbe inventar y pide tono, fecha, enlace y disculpa si hay retraso.
-2. **Devolución:** el modelo debe combinar el nombre del producto con las listas *con* / *sin* devolución y responder con claridad aunque no proceda la devolución.
-
-Cambiar una política o un pedido en los JSON y repetir la misma pregunta suele mostrar de inmediato el efecto del **contexto inyectado** sin tocar el código de la app.
