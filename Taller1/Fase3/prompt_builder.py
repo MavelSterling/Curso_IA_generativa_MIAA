@@ -5,13 +5,12 @@ import json
 from data_loader import DATA_DIR, PROMPTS_DIR, load_json, load_txt
 
 
-def build_prompt_estado_pedido(tracking_number: str) -> str:
+def buscar_pedido(tracking_number: str) -> dict | None:
+    """Fila del pedido en BD_solicitud_de_pedido.json, o None si no existe."""
     pedidos_data = load_json(DATA_DIR / "BD_solicitud_de_pedido.json")
-    prompt_template = load_txt(PROMPTS_DIR / "prompt_solicitud_pedido.txt")
-
     tn = tracking_number.strip()
     pedidos = pedidos_data["pedidos_ecomarket"]
-    coincidencia = next(
+    return next(
         (
             p
             for p in pedidos
@@ -19,24 +18,38 @@ def build_prompt_estado_pedido(tracking_number: str) -> str:
         ),
         None,
     )
-    bloque_pedidos = [coincidencia] if coincidencia is not None else pedidos
+
+
+def build_prompt_estado_pedido(tracking_number: str) -> str:
+    prompt_template = load_txt(PROMPTS_DIR / "prompt_solicitud_pedido.txt")
+
+    tn = tracking_number.strip()
+    coincidencia = buscar_pedido(tn)
+    if coincidencia is not None:
+        bloque_pedidos = [coincidencia]
+    else:
+        pedidos_data = load_json(DATA_DIR / "BD_solicitud_de_pedido.json")
+        bloque_pedidos = pedidos_data["pedidos_ecomarket"]
     pedidos_json_str = json.dumps(bloque_pedidos, ensure_ascii=False, indent=2)
 
     if coincidencia is not None:
         resultado_busqueda = (
             f"SÍ: el pedido {tn} está registrado en la base de datos de EcoMarket."
         )
-        datos_oficiales = (
-            f"- Número de seguimiento: {coincidencia.get('numero_seguimiento', tn)}\n"
-            f"- Estado: {coincidencia.get('estado', '')}\n"
-            f"- Fecha estimada: {coincidencia.get('fecha_estimada', '')}\n"
-            f"- Enlace de rastreo: {coincidencia.get('link', '')}"
+        datos_oficiales = json.dumps(
+            {
+                "numero_seguimiento": coincidencia.get("numero_seguimiento", tn),
+                "estado": coincidencia.get("estado", ""),
+                "fecha_estimada": coincidencia.get("fecha_estimada", ""),
+                "link": coincidencia.get("link", ""),
+            },
+            ensure_ascii=False,
         )
     else:
         resultado_busqueda = (
             f"NO: no hay ningún pedido con número {tn} en la base de datos."
         )
-        datos_oficiales = "(No hay fila de pedido para ese número.)"
+        datos_oficiales = "null"
 
     return (
         prompt_template.replace("{{PEDIDOS_ECOMARKET}}", pedidos_json_str)

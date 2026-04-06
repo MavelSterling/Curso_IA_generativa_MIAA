@@ -43,7 +43,7 @@ Fase3/
 
 | Capa                          | Archivos                                  | Responsabilidad                                                                           |
 | ----------------------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------- |
-| Presentación                 | `app.py`                                | `input`/`print`, ayuda, modo `ECOMARKET_PROMPT_ONLY`, orquestación del flujo.      |
+| Presentación                 | `app.py`                                | `input`/`print`, ayuda, orquestación del flujo hacia el prompt y Ollama.      |
 | Intención y datos de usuario | `classifier.py`                         | Decide si la entrada es pedido, devolución, devolución incompleta o ayuda.              |
 | Contexto + prompt             | `prompt_builder.py`, `data_loader.py` | Carga datos y plantillas; sustituye `{{...}}` y devuelve el texto final para el modelo. |
 | Proveedor LLM                 | `model.py`                              | HTTP a Ollama (`/api/tags`, `/api/chat`, fallback OpenAI si aplica).                  |
@@ -147,7 +147,6 @@ Variables útiles:
 | `OLLAMA_BASE_URL`       | Por defecto `http://127.0.0.1:11434`.                                                                               |
 | `OLLAMA_HOST`           | Por defecto `127.0.0.1:11434` (variable que usa el CLI de Ollama; la app la fija con `setdefault` si hace falta). |
 | `OLLAMA_MODEL`          | Por defecto `llama3.2`. Debe coincidir con un modelo que hayas descargado (`ollama pull ...`).                    |
-| `ECOMARKET_PROMPT_ONLY` | `1` = no llama a Ollama; solo imprime el prompt generado (útil para depurar prompts sin GPU).                      |
 
 ### Errores comunes y cómo resolverlos
 

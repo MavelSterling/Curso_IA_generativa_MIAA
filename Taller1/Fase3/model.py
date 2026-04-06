@@ -200,14 +200,6 @@ def complete_chat_ollama(
 
 def run_model(user_prompt: str) -> str:
     model = resolve_ollama_model_once()
-    messages = [
-        {
-            "role": "system",
-            "content": (
-                "Cumple las instrucciones del mensaje del usuario con precisión. "
-                "Responde en español."
-            ),
-        },
-        {"role": "user", "content": user_prompt},
-    ]
+    # Rol y formato de salida van en los archivos prompt/*.txt
+    messages = [{"role": "user", "content": user_prompt}]
     return complete_chat_ollama(messages, model, OLLAMA_URL)

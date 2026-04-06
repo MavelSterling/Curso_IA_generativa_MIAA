@@ -1,4 +1,3 @@
-import os
 import sys
 
 import classifier as classifier_mod
@@ -31,16 +30,16 @@ No reconocí la consulta. Ejemplos:
     )
 
 
-def chat_loop(prompt_only: bool) -> None:
+def chat_loop() -> None:
     print("=== Mini chatbot EcoMarket, bienvenido! ===")
-    if prompt_only:
-        print("Modo solo-prompt: se mostrará el texto enviado al modelo, sin llamada HTTP.")
-    else:
-        print(
-            f"Modelo Ollama: {llm.resolve_ollama_model_once()} ({llm.OLLAMA_URL})"
-        )
-        print("Los datos de los pedidos y devoluciones estan en data/*.json y el comportamiento lo definen del chatbot en prompt/*.txt\n")
-    print("Para salir, escribe 'salir' o presiona Ctrl+C\n")    
+    print(
+        f"Modelo Ollama: {llm.resolve_ollama_model_once()} ({llm.OLLAMA_URL})"
+    )
+    print(
+        "Los datos de los pedidos y devoluciones estan en data/*.json y el "
+        "comportamiento lo definen del chatbot en prompt/*.txt\n"
+    )
+    print("Para salir, escribe 'salir' o presiona Ctrl+C\n")
     while True:
         try:
             linea = normalizar_entrada_usuario(input("Tú: "))
@@ -66,13 +65,6 @@ def chat_loop(prompt_only: bool) -> None:
             continue
 
         if linea.lower() in ("devolución", "devolucion"):
-            if prompt_only:
-                print(
-                    "(En modo guiado necesitas tres líneas; "
-                    "usa formato producto | cond | EM-xxxx)\n"
-                )
-                imprimir_ayuda()
-                continue
             try:
                 p = input("  Producto: ").strip()
                 c = input("  Condición (ej. sin abrir): ").strip()
@@ -97,12 +89,6 @@ def chat_loop(prompt_only: bool) -> None:
                     d_name, d_cond, d_ord
                 )
 
-        if prompt_only:
-            print("\n--- Prompt para el modelo ---\n")
-            print(user_prompt)
-            print("\n--- Fin del prompt ---\n")
-            continue
-
         try:
             respuesta = llm.run_model(user_prompt)
         except RuntimeError as e:
@@ -125,21 +111,14 @@ def main() -> None:
         except (AttributeError, OSError):
             pass
 
-    prompt_only = os.environ.get("ECOMARKET_PROMPT_ONLY", "").strip() in (
-        "1",
-        "true",
-        "yes",
-    )
+    llm.ensure_ollama_running(llm.OLLAMA_URL)
+    try:
+        llm.resolve_ollama_model_once()
+    except RuntimeError as e:
+        print(str(e))
+        sys.exit(1)
 
-    if not prompt_only:
-        llm.ensure_ollama_running(llm.OLLAMA_URL)
-        try:
-            llm.resolve_ollama_model_once()
-        except RuntimeError as e:
-            print(str(e))
-            sys.exit(1)
-
-    chat_loop(prompt_only)
+    chat_loop()
 
 
 if __name__ == "__main__":
