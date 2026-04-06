@@ -1,6 +1,23 @@
 # Fase 3. Aplicación de la ingeniería de prompts (mini chat)
 
-Objetivo: ver en código cómo se arma **contexto + instrucciones** (prompt) a partir de datos de prueba, y cómo eso condiciona la respuesta del modelo. No hay frontend avanzado, autenticación, base de datos real ni despliegue: solo consola, archivos JSON/TXT y una llamada HTTP al modelo.
+## Objetivo de la aplicación de la Ingeniería de Prompts.
+
+En esta fase práctica, los estudiantes diseñarán prompts para su modelo. Esto les permitirá entender la conexión directa entre la instrucción y el resultado.
+
+Para esto, los estudiantes pueden usar una estructura similar a la que abordamos en el tutorial práctico de prompts en la primera sesión. La idea es poder ver, en código, cómo se estructura una cadena de prompts con el fin de que los usuarios puedan obtener respuestas óptimas en sus interacciones con el chat de atención al cliente.
+
+**Nota**: si bien en las primeras fases los estudiantes pueden proponer un modelo complejo o un modelo de pago, para este ejercicio pueden usar un modelo open-source sin ningún problema, con el fin de evidenciar el impacto de los prompts.
+
+### Ejercicios de prompts
+
+1. **Prompt de Solicitud de Pedido**: redactar un prompt que le pida al modelo el estado de un pedido, proporcionando el número de seguimiento. Deben crear y agregar al prompt, como parte del proceso, un documento/texto con el estado de 10 pedidos como mínimo. Este documento es un ejemplo de prueba y actuará como la base de datos para que el modelo pueda responder ante las solicitudes.
+   - **Ejemplo de prompt básico**: "Dame el estado del pedido 12345."
+   - **Ejemplo de prompt mejorado**: "Actúa como un agente de servicio al cliente amable. Proporciona el estado actual del pedido con el número de seguimiento '{{tracking_number}}'. Incluye una estimación de la fecha de entrega y un enlace para rastrear el paquete en tiempo real. Si el pedido está retrasado, ofrece una disculpa y una breve explicación."
+
+2. **Prompt de Devolución de Producto**: crear un prompt para guiar al cliente en el proceso de devolución.
+   - **Desafío**: diseñar el prompt para que el modelo sea capaz de distinguir entre productos que pueden devolverse y los que no (ej.: productos perecederos, productos de higiene). La respuesta debe ser clara y empática, incluso si la devolución no es posible.
+
+Demo en video: `https://www.youtube.com/watch?v=h99ReCGX_qg`
 
 ## Contenido de la carpeta
 
