@@ -21,6 +21,8 @@ No reconocí la consulta. Ejemplos:
   • Pedido:  "¿Estado del pedido EM-1004?"  o solo  EM-1004
   • Devolución en una línea:
       yogurt natural | sin abrir | EM-1001
+    o con comas (número de pedido opcional):
+      devolver yogurt natural, sin abrir, EM-1001
     o:
       devolución: bolsa ecológica | nueva con ticket | EM-1002
   • Escribe  devolución  (solo) para modo guiado (te preguntamos datos).
@@ -30,15 +32,15 @@ No reconocí la consulta. Ejemplos:
 
 
 def chat_loop(prompt_only: bool) -> None:
-    print("=== Mini chat EcoMarket (Fase 3) ===")
+    print("=== Mini chatbot EcoMarket, bienvenido! ===")
     if prompt_only:
         print("Modo solo-prompt: se mostrará el texto enviado al modelo, sin llamada HTTP.")
     else:
         print(
             f"Modelo Ollama: {llm.resolve_ollama_model_once()} ({llm.OLLAMA_URL})"
         )
-        print("Los datos salen de data/*.json; el comportamiento lo definen prompt/*.txt\n")
-
+        print("Los datos de los pedidos y devoluciones estan en data/*.json y el comportamiento lo definen del chatbot en prompt/*.txt\n")
+    print("Para salir, escribe 'salir' o presiona Ctrl+C\n")    
     while True:
         try:
             linea = normalizar_entrada_usuario(input("Tú: "))
@@ -53,6 +55,14 @@ def chat_loop(prompt_only: bool) -> None:
             break
         if linea.lower() in ("ayuda", "help", "?"):
             imprimir_ayuda()
+            continue
+
+        if classifier_mod.es_saludo(linea):
+            print(
+                "\nEcoMarket: Bienvenido al asistente virtual de EcoMarket. "
+                "Puedes consultar un pedido (por ejemplo EM-1004), una devolución "
+                "o escribir ayuda para ver ejemplos.\n"
+            )
             continue
 
         if linea.lower() in ("devolución", "devolucion"):

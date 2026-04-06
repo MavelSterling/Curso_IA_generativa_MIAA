@@ -8,6 +8,21 @@ import requests
 # URL base del servicio HTTP de Ollama
 OLLAMA_URL = os.environ.get("OLLAMA_BASE_URL", "http://127.0.0.1:11434").rstrip("/")
 
+# Sin esto, Ollama suele usar temperatura ~0.8: cada respuesta varía mucho y los
+# modelos locales a veces inventan negativas o frases incoherentes entre un intento y otro.
+def _ollama_generation_options() -> dict[str, Any]:
+    raw = os.environ.get("OLLAMA_TEMPERATURE", "0.0").strip()
+    try:
+        temp = float(raw)
+    except ValueError:
+        temp = 0.2
+    temp = max(0.0, min(2.0, temp))
+    opts: dict[str, Any] = {"temperature": temp}
+    seed_raw = os.environ.get("OLLAMA_SEED", "").strip()
+    if seed_raw.isdigit():
+        opts["seed"] = int(seed_raw)
+    return opts
+
 # Variable que usa el CLI de Ollama (por si no coincide con la configuración del entorno)
 os.environ.setdefault("OLLAMA_HOST", "127.0.0.1:11434")
 
@@ -136,9 +151,15 @@ def complete_chat_ollama(
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
             raise RuntimeError(_mensaje_sin_conexion(root)) from e
 
+    gen_opts = _ollama_generation_options()
     native = _post(
         f"{root}/api/chat",
-        {"model": model, "messages": messages, "stream": False},
+        {
+            "model": model,
+            "messages": messages,
+            "stream": False,
+            "options": gen_opts,
+        },
     )
 
     if native.status_code == 200:
@@ -146,10 +167,15 @@ def complete_chat_ollama(
 
     # Algunas instalaciones exponen compatibilidad OpenAI.
     if native.status_code == 404:
-        compat = _post(
-            f"{root}/v1/chat/completions",
-            {"model": model, "messages": messages, "stream": False},
-        )
+        compat_body: dict[str, Any] = {
+            "model": model,
+            "messages": messages,
+            "stream": False,
+            "temperature": gen_opts.get("temperature", 0.2),
+        }
+        if "seed" in gen_opts:
+            compat_body["seed"] = gen_opts["seed"]
+        compat = _post(f"{root}/v1/chat/completions", compat_body)
         if compat.status_code == 200:
             data = compat.json()
             return data["choices"][0]["message"]["content"].strip()

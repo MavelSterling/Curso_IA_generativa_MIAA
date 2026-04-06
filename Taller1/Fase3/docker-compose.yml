@@ -1,0 +1,68 @@
+# Fase 3 — EcoMarket mini chat + Ollama
+#
+# --- Flujo habitual (imagen ya creada) ---
+#   1) Motor LLM en segundo plano (una vez por sesión o tras reiniciar Docker):
+#        docker compose up -d ollama
+#   2) Chat interactivo (tantas veces como quieras; --rm borra el contenedor al salir):
+#        docker compose run --rm -it fase3
+#
+# Si Ollama no está levantado, `docker compose run` lo arranca y espera a que esté listo.
+#
+# --- Construir / actualizar la imagen de la app (tras cambiar código) ---
+#        docker compose build fase3
+#   o, la primera vez con dependencias:
+#        docker compose build --no-cache fase3
+#
+# --- Todo junto (logs de ollama + fase3 mezclados; útil para depurar) ---
+#        docker compose up --build
+#
+# GPU (opcional, Linux/WSL2 con NVIDIA): descomenta en el servicio ollama:
+#   deploy:
+#     resources:
+#       reservations:
+#         devices:
+#           - driver: nvidia
+#             count: all
+#             capabilities: [gpu]
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        ollama serve &
+        i=0
+        while [ $$i -lt 180 ]; do
+          if ollama list >/dev/null 2>&1; then break; fi
+          i=$$((i+1))
+          sleep 1
+        done
+        ollama pull llama3.2
+        wait
+    healthcheck:
+      test: ["CMD", "ollama", "show", "llama3.2"]
+      interval: 15s
+      timeout: 30s
+      retries: 60
+      start_period: 600s
+
+  fase3:
+    build: .
+    image: fase3-ecomarket:latest
+    stdin_open: true
+    tty: true
+    environment:
+      OLLAMA_BASE_URL: http://ollama:11434
+      OLLAMA_MODEL: llama3.2
+    depends_on:
+      ollama:
+        condition: service_healthy
+
+volumes:
+  ollama_data:

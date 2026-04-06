@@ -4,18 +4,18 @@ Objetivo: ver en código cómo se arma **contexto + instrucciones** (prompt) a p
 
 ## Contenido de la carpeta
 
-| Archivo | Rol |
-| -------- | --- |
-| `app.py` | Interfaz de consola: lee input del usuario, muestra ayuda/salida y delega lógica a otros módulos. |
-| `classifier.py` | Detecta tipo de consulta (`pedido`, `devolucion`, `devolucion_incompleta`, `ayuda`) y extrae datos. |
-| `prompt_builder.py` | Construye prompts finales para pedido/devolución inyectando JSON en las plantillas TXT. |
-| `data_loader.py` | Carga archivos `JSON` y `TXT` desde `data/` y `prompt/`. |
-| `model.py` | Conexión y llamada al LLM vía **Ollama** (arranque, resolución de modelo y generación). |
-| `pyproject.toml` | Dependencias del proyecto (`requests`); instalar con `pip install .` o `pip install -e .` desde esta carpeta. |
-| `data/BD_solicitud_de_pedido.json` | “Base de datos” de ejemplo: al menos 10 pedidos con estado, fecha estimada y enlace de rastreo. |
-| `data/BD_politicas_devolucion.json` | Reglas de devolución (qué sí / qué no, p. ej. perecederos o higiene). |
-| `prompt/prompt_solicitud_pedido.txt` | Plantilla: rol de agente, datos `{{PEDIDOS_ECOMARKET}}`, consulta con `{{tracking_number}}`, instrucciones y formato de salida. |
-| `prompt/prompt_devolucion.txt` | Plantilla: política `{{POLITICAS_DEVOLUCION_ECOMARKET}}`, datos del cliente (`product_name`, etc.) e instrucciones para decidir con empatía. |
+| Archivo                                | Rol                                                                                                                                                |
+| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `app.py`                             | Interfaz de consola: lee input del usuario, muestra ayuda/salida y delega lógica a otros módulos.                                                |
+| `classifier.py`                      | Detecta tipo de consulta (`pedido`, `devolucion`, `devolucion_incompleta`, `ayuda`) y extrae datos.                                        |
+| `prompt_builder.py`                  | Construye prompts finales para pedido/devolución inyectando JSON en las plantillas TXT.                                                           |
+| `data_loader.py`                     | Carga archivos `JSON` y `TXT` desde `data/` y `prompt/`.                                                                                   |
+| `model.py`                           | Conexión y llamada al LLM vía**Ollama** (arranque, resolución de modelo y generación).                                                   |
+| `pyproject.toml`                     | Dependencias del proyecto (`requests`); instalar con `pip install .` o `pip install -e .` desde esta carpeta.                                |
+| `data/BD_solicitud_de_pedido.json`   | “Base de datos” de ejemplo: al menos 10 pedidos con estado, fecha estimada y enlace de rastreo.                                                  |
+| `data/BD_politicas_devolucion.json`  | Reglas de devolución (qué sí / qué no, p. ej. perecederos o higiene).                                                                          |
+| `prompt/prompt_solicitud_pedido.txt` | Plantilla: rol de agente, datos `{{PEDIDOS_ECOMARKET}}`, consulta con `{{tracking_number}}`, instrucciones y formato de salida.                |
+| `prompt/prompt_devolucion.txt`       | Plantilla: política `{{POLITICAS_DEVOLUCION_ECOMARKET}}`, datos del cliente (`product_name`, etc.) e instrucciones para decidir con empatía. |
 
 Los marcadores `{{...}}` se reemplazan en `prompt_builder.py` con texto JSON legible para el modelo.
 
@@ -41,12 +41,12 @@ Fase3/
 
 ### Capas y dependencias entre módulos
 
-| Capa | Archivos | Responsabilidad |
-| ---- | -------- | ----------------- |
-| Presentación | `app.py` | `input`/`print`, ayuda, modo `ECOMARKET_PROMPT_ONLY`, orquestación del flujo. |
-| Intención y datos de usuario | `classifier.py` | Decide si la entrada es pedido, devolución, devolución incompleta o ayuda. |
-| Contexto + prompt | `prompt_builder.py`, `data_loader.py` | Carga datos y plantillas; sustituye `{{...}}` y devuelve el texto final para el modelo. |
-| Proveedor LLM | `model.py` | HTTP a Ollama (`/api/tags`, `/api/chat`, fallback OpenAI si aplica). |
+| Capa                          | Archivos                                  | Responsabilidad                                                                           |
+| ----------------------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Presentación                 | `app.py`                                | `input`/`print`, ayuda, modo `ECOMARKET_PROMPT_ONLY`, orquestación del flujo.      |
+| Intención y datos de usuario | `classifier.py`                         | Decide si la entrada es pedido, devolución, devolución incompleta o ayuda.              |
+| Contexto + prompt             | `prompt_builder.py`, `data_loader.py` | Carga datos y plantillas; sustituye `{{...}}` y devuelve el texto final para el modelo. |
+| Proveedor LLM                 | `model.py`                              | HTTP a Ollama (`/api/tags`, `/api/chat`, fallback OpenAI si aplica).                  |
 
 **Orden de dependencias (quién importa a quién):**
 
@@ -103,34 +103,38 @@ Las respuestas reales las redacta el modelo; lo importante es que **no contradig
 
 ### Consulta de estado de pedido
 
-| Pregunta (ejemplo en el chat) | Respuesta esperada (contenido mínimo) |
-| -------------------------------- | --------------------------------------- |
-| `¿Estado de mi pedido EM-1002?` | Estado **En tránsito**, fecha estimada **2026-04-04**, enlace `https://tracking.ecomarket.com/EM-1002`, tono cordial. |
-| `¿Qué pasó con EM-1004?` | Estado **Retrasado**, fecha estimada **2026-04-08**, mismo enlace de rastreo, **disculpa breve** por el retraso. |
-| `EM-1005` | Estado **Cancelado**, indicar que **no hay** fecha estimada de entrega (o “No aplica”), enlace si el prompt lo pide para consulta; sin inventar nueva fecha. |
-| `¿Dónde está EM-1010?` | Estado **Entregado**, fecha **2026-03-27**, enlace `https://tracking.ecomarket.com/EM-1010`. |
-| `Pedido EM-9999` | El código **no está** en la base: decirlo claramente y sugerir verificar el número o contactar soporte **sin inventar** un estado. |
+| Pregunta (ejemplo en el chat)      | Respuesta esperada (contenido mínimo)                                                                                                                                    |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `¿Estado de mi pedido EM-1002?` | Estado **En tránsito**, fecha estimada **2026-04-04**, enlace `https://tracking.ecomarket.com/EM-1002`, tono cordial.                                     |
+| `¿Qué pasó con EM-1004?`      | Estado **Retrasado**, fecha estimada **2026-04-08**, mismo enlace de rastreo, **disculpa breve** por el retraso.                                         |
+| `EM-1005`                        | Estado **Cancelado**, indicar que **no hay** fecha estimada de entrega (o “No aplica”), enlace si el prompt lo pide para consulta; sin inventar nueva fecha. |
+| `¿Dónde está EM-1010?`        | Estado **Entregado**, fecha **2026-03-27**, enlace `https://tracking.ecomarket.com/EM-1010`.                                                                 |
+| `Pedido EM-9999`                 | El código **no está** en la base: decirlo claramente y sugerir verificar el número o contactar soporte **sin inventar** un estado.                          |
 
 ### Devoluciones
 
-Entrada en una línea con tres partes separadas por `|` o `;` (ver `ayuda` en la consola). Ejemplos:
+Formatos de entrada (una sola línea; ver también `ayuda` en la consola):
 
-1. **Entrada:** `yogurt natural ; sin abrir ; EM-1001`  
-   **Esperado:** **No** procede devolución (encaja en **perecederos** / alimentos); explicación breve según política; **empatía**; alternativa razonable (p. ej. soporte) sin prometer excepciones no escritas.
+| Formato | Ejemplo |
+| ------- | ------- |
+| Tres partes con `\|` o `;` | `producto \| condición \| EM-xxxx` |
+| Misma idea con prefijo | `devolución: producto \| condición \| EM-xxxx` |
+| Lenguaje natural con comas | `devolver producto, condición` — el `EM-xxxx` al **final**, separado por comas, es **opcional** (p. ej. `devolver bolsa ecológica, nueva, EM-1003`). Si falta el pedido, el prompt marca **(no indicado)** y el modelo debe seguir aplicando la política al producto. |
 
-2. **Entrada:** `jabón líquido ; sin abrir ; EM-1002`  
-   **Esperado:** **No** procede (**higiene personal**); mismo criterio de claridad y empatía.
+Ejemplos de comportamiento esperado (según `BD_politicas_devolucion.json`):
 
-3. **Entrada:** `bolsa ecológica comprada ; nueva con etiquetas ; EM-1003`  
-   **Esperado:** **Sí** puede proceder si cumple **Bolsas ecológicas** (hasta **15 días**); pasos acordes a la **regla_general** (pedido, motivo, estado del producto) y plazo de la categoría.
+| Entrada (ejemplo en el chat) | Respuesta esperada (contenido mínimo) |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `yogurt natural ; sin abrir ; EM-1001` | **No** procede: encaja en **Productos perecederos** (o alimentos perecederos); explicación breve según política; **empatía**; alternativa razonable (p. ej. contactar soporte EcoMarket) **sin** prometer excepciones no escritas. |
+| `devolver yogurt natural, sin abrir` | Mismo criterio que la fila anterior; el número de pedido aparece como **(no indicado)** en el prompt — el veredicto sobre el producto sigue siendo **no procede** por perecedero; puede pedirse el `EM-xxxx` para futuras gestiones según **regla_general**. |
+| `jabón líquido ; sin abrir ; EM-1002` | **No** procede: **Productos de higiene personal**; claridad, empatía y alternativa sin inventar reglas. |
+| `bolsa ecológica comprada ; nueva con etiquetas ; EM-1003` | **Sí** puede proceder si encaja en **Bolsas ecológicas** — plazo **hasta 15 días** tal como en el JSON; **regla_general**: pedido, motivo de devolución y estado del producto; pasos concretos sin repetir datos ya dichos. |
+| `devolver bolsa ecológica, nueva con etiquetas, EM-1003` | Equivalente al caso anterior (mismo veredicto y plazo) usando el formato con comas y pedido al final. |
+| `camiseta de algodón orgánico ; con etiquetas originales ; EM-1006` | Tratar como **Ropa sostenible**: devolución posible **hasta 20 días con etiquetas originales** si la condición declarada coincide con la política de esa categoría. |
+| `crema facial ; abierta y usada ; EM-1007` | **No** procede: al menos una de **Cosméticos abiertos** y **Productos usados o sin empaque original**; respuesta empática y alineada a las exclusiones del JSON. |
+| devolver crema facial abierta y usada
 
-4. **Entrada:** `camiseta de algodón orgánico ; con etiquetas originales ; EM-1006`  
-   **Esperado:** Tratar como **ropa sostenible**: devolución posible hasta **20 días** con etiquetas, si la condición cuadra con la política.
-
-5. **Entrada:** `crema facial ; abierta y usada ; EM-1007`  
-   **Esperado:** **No** procede por **cosméticos abiertos** y/o **productos usados**; respuesta empática y alineada a las exclusiones del JSON.
-
-Si el modelo se aleja de estos hechos, conviene revisar el prompt o los datos inyectados antes que el modelo en sí.
+Si el modelo se aleja de estos hechos, conviene revisar el **prompt**, el **clasificador** (formatos aceptados) o los **datos inyectados** antes que culpar solo al modelo.
 
 ## Modelo (solo Ollama)
 
@@ -138,26 +142,20 @@ La app usa la API HTTP de **Ollama** (`/api/tags`, `/api/chat`; si hace falta, `
 
 Variables útiles:
 
-| Variable | Significado |
-| ---------- | ----------- |
-| `OLLAMA_BASE_URL` | Por defecto `http://127.0.0.1:11434`. |
-| `OLLAMA_HOST` | Por defecto `127.0.0.1:11434` (variable que usa el CLI de Ollama; la app la fija con `setdefault` si hace falta). |
-| `OLLAMA_MODEL` | Por defecto `llama3.2`. Debe coincidir con un modelo que hayas descargado (`ollama pull ...`). |
-| `ECOMARKET_PROMPT_ONLY` | `1` = no llama a Ollama; solo imprime el prompt generado (útil para depurar prompts sin GPU). |
+| Variable                  | Significado                                                                                                           |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `OLLAMA_BASE_URL`       | Por defecto `http://127.0.0.1:11434`.                                                                               |
+| `OLLAMA_HOST`           | Por defecto `127.0.0.1:11434` (variable que usa el CLI de Ollama; la app la fija con `setdefault` si hace falta). |
+| `OLLAMA_MODEL`          | Por defecto `llama3.2`. Debe coincidir con un modelo que hayas descargado (`ollama pull ...`).                    |
+| `ECOMARKET_PROMPT_ONLY` | `1` = no llama a Ollama; solo imprime el prompt generado (útil para depurar prompts sin GPU).                      |
 
 ### Errores comunes y cómo resolverlos
 
-1. **Mensaje:** `No se pudo conectar con Ollama ...`  
-   **Causa típica:** servicio apagado o URL incorrecta.  
-   **Solución:** inicia Ollama con `ollama serve` y valida `OLLAMA_BASE_URL`.
+1. **Mensaje:** `No se pudo conectar con Ollama ...`**Causa típica:** servicio apagado o URL incorrecta.**Solución:** inicia Ollama con `ollama serve` y valida `OLLAMA_BASE_URL`.
+2. **Mensaje:** `El modelo llama3.2 no está instalado.`**Causa típica:** `OLLAMA_MODEL` no coincide con lo descargado.**Solución:** instala ese modelo (`ollama pull llama3.2`) o ajusta la variable al modelo existente.
+3. **Caso frecuente en clase:** instalaste `llama3.1`, pero configuraste `OLLAMA_MODEL=llama3.2`.**Qué hacer:** alinea ambos valores.
 
-2. **Mensaje:** `El modelo llama3.2 no está instalado.`  
-   **Causa típica:** `OLLAMA_MODEL` no coincide con lo descargado.  
-   **Solución:** instala ese modelo (`ollama pull llama3.2`) o ajusta la variable al modelo existente.
-
-3. **Caso frecuente en clase:** instalaste `llama3.1`, pero configuraste `OLLAMA_MODEL=llama3.2`.  
-   **Qué hacer:** alinea ambos valores.  
-   - Opción A: `ollama pull llama3.2`  
+   - Opción A: `ollama pull llama3.2`
    - Opción B: `$env:OLLAMA_MODEL="llama3.1"` (PowerShell)
 
 ### Ejemplo: `llama3.1` en Windows (PowerShell)
@@ -183,4 +181,21 @@ Descarga el modelo y arranca el chat (Ollama puede iniciarse solo al correr `app
 ```bash
 ollama pull llama3.2
 python app.py
+```
+
+## Ejecución con Docker
+
+Desde la raíz del repositorio, entra en la carpeta de Fase 3 y usa Compose (hay un `docker-compose.yml` que levanta Ollama con `llama3.2` y la imagen de la app):
+
+```powershell
+cd Taller1\Fase3
+
+# Primera vez o tras cambiar el código Python
+docker compose build fase3
+
+# Motor LLM (segundo plano)
+docker compose up -d ollama
+
+# Chat (repetible)
+docker compose run --rm -it fase3
 ```

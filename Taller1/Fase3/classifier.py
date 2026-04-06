@@ -5,6 +5,30 @@ from typing import Any
 
 TRACKING_RE = re.compile(r"\b(EM-\d+)\b", re.IGNORECASE)
 
+# Solo la línea completa, para no confundir con "hola, quiero devolver…"
+_SALUDOS_LINEA = frozenset(
+    {
+        "hola",
+        "hey",
+        "hi",
+        "hello",
+        "buenas",
+        "saludos",
+        "buenos dias",
+        "buenos días",
+        "buenas tardes",
+        "buenas noches",
+        "buen dia",
+        "buen día",
+    }
+)
+
+
+def es_saludo(texto: str) -> bool:
+    s = texto.strip().lower()
+    s = re.sub(r"[!?¡…\.]+$", "", s).strip()
+    return bool(s) and s in _SALUDOS_LINEA
+
 
 def try_parse_devolucion_en_linea(text: str) -> tuple[str, str, str] | None:
     """
@@ -37,6 +61,44 @@ def try_parse_devolucion_en_linea(text: str) -> tuple[str, str, str] | None:
     return None
 
 
+def try_parse_devolucion_natural_comma(texto: str) -> tuple[str, str, str] | None:
+    """
+    Formato coloquial en español, separado por comas, p. ej.:
+      devolver yogurt natural, sin abrir
+      devolver bolsa ecológica, nueva con ticket, EM-1002
+    El número de pedido (EM-xxxx) es opcional; si falta, se devuelve cadena vacía.
+    """
+
+    t = texto.strip()
+    m = re.match(
+        r"(?is)^\s*(?:quiero\s+)?(?:devolver|devolución|devolucion)\s+(.+)$",
+        t,
+    )
+    if not m:
+        return None
+
+    body = m.group(1).strip()
+    if not body:
+        return None
+
+    parts = [p.strip() for p in body.split(",") if p.strip()]
+    if len(parts) < 2:
+        return None
+
+    if TRACKING_RE.fullmatch(parts[-1]):
+        order = parts[-1].upper()
+        mid = parts[:-1]
+        product = mid[0].strip()
+        condition = ", ".join(x.strip() for x in mid[1:]) if len(mid) > 1 else ""
+        if not condition:
+            condition = "no indicada"
+        return product, condition, order
+
+    product = parts[0].strip()
+    condition = ", ".join(x.strip() for x in parts[1:])
+    return product, condition, ""
+
+
 def clasificar_consulta(texto: str) -> tuple[str, Any]:
     """
     Devuelve:
@@ -49,6 +111,10 @@ def clasificar_consulta(texto: str) -> tuple[str, Any]:
     dev = try_parse_devolucion_en_linea(texto)
     if dev:
         return "devolucion", dev
+
+    dev_natural = try_parse_devolucion_natural_comma(texto)
+    if dev_natural:
+        return "devolucion", dev_natural
 
     m = TRACKING_RE.search(texto)
     if m:
