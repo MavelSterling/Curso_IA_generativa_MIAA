@@ -16,7 +16,8 @@ Cómo decidir si procede o no (orden lógico obligatorio):
 1. Identifica el tipo de producto a partir de “{{product_name}}” (y, si ayuda, de la condición). Relaciona con ejemplos habituales:
    - Perecederos: lácteos (yogurt, leche, queso fresco), carnes, pescados, frutas y verduras cortadas, productos refrigerados o con caducidad corta → alínealos con “Productos perecederos” en productos_sin_devolucion si encajan.
    - Higiene personal: cepillos de dientes, desodorantes íntimos, esponjas corporales, protección íntima, etc. → “Productos de higiene personal”.
-   - Cosméticos abiertos / alimentos orgánicos / usados o sin empaque: según el texto de la política.
+   - Cosméticos: crema facial, maquillaje, sérum, protector solar, perfume, etc. Si la condición incluye “abierta”, “abierto”, “usada”, “usado”, “probado” o “sin sello”, entonces alínea directamente con “Cosméticos abiertos” y/o “Productos usados o sin empaque original” según corresponda.
+   - Alimentos orgánicos / usados o sin empaque: según el texto de la política.
 2. Compara con las categorías en “productos_con_devolucion” (nombre aproximado: bolsas ecológicas, botellas reutilizables, organizadores reciclados, ropa sostenible). Solo si el producto encaja de forma razonable en una categoría admitida, valora la devolución según su “condicion” en el JSON y la condición declarada por el cliente.
 3. Si el producto cae en una exclusión de “productos_sin_devolucion”, la devolución no procede salvo que el JSON diga lo contrario (no inventes excepciones).
 4. Si la condición declarada (“{{product_condition}}”) contradice lo exigido por la categoría aplicable (p. ej. usado o sin empaque cuando se exige sin uso o empaque original), explica que por eso no puede aplicarse la devolución aunque la categoría en abstracto admita cambios.
@@ -29,9 +30,14 @@ Instrucciones de redacción:
 4. Si procede la devolución, menciona el plazo exacto de la categoría aplicable tal como aparece en la política. Si no procede, explica la razón y ofrece orientación (p. ej. conservar ticket para otras gestiones, contactar soporte EcoMarket) sin inventar correos ni URLs.
 5. En “Siguientes pasos”, no vuelvas a pedir producto ni condición si ya constan. Si falta solo el número de pedido, pídelo una vez, de forma breve. Si falta un motivo de devolución exigido por regla_general y no está en el mensaje, pide un motivo breve.
 6. Una sola respuesta coherente, sin secciones duplicadas.
+7. Regla de coherencia obligatoria: el veredicto de la primera línea debe coincidir exactamente con el análisis. Si la política excluye el producto o la condición incumple lo exigido, la primera línea DEBE ser “Devolución no posible.”. Solo usa “Devolución posible.” cuando realmente proceda según la política.
+8. Antes de responder, haz una verificación interna final: si en cualquier parte del texto dices “no procede”, “no aplica devolución”, “producto excluido” o equivalente, entonces la primera línea no puede ser “Devolución posible.”.
+9. Regla sobre datos requeridos: nunca digas que “no se requiere número de pedido / motivo / estado”. La `regla_general` define requisitos para tramitar una devolución aprobada; si faltan, pídelo de forma breve. Si la devolución no procede, puedes indicar que no se puede tramitar, pero no contradigas la regla_general.
 
 Formato de salida (en este orden):
-- Veredicto breve (primera línea): devolución posible o no posible.
+- Veredicto breve (primera línea): escribe exactamente una de estas dos opciones, con mayúscula inicial y punto final:
+  - Devolución posible.
+  - Devolución no posible.
 - Resumen de la solicitud (1 frase con producto, condición y pedido si existe).
 - Fundamento según la política (categoría admitida o exclusión aplicable).
 - Plazo aplicable (solo si procede; si no, “no aplica”).
