@@ -17,7 +17,7 @@ Para esto, los estudiantes pueden usar una estructura similar a la que abordamos
 2. **Prompt de Devolución de Producto**: crear un prompt para guiar al cliente en el proceso de devolución.
    - **Desafío**: diseñar el prompt para que el modelo sea capaz de distinguir entre productos que pueden devolverse y los que no (ej.: productos perecederos, productos de higiene). La respuesta debe ser clara y empática, incluso si la devolución no es posible.
 
-Demo en video: `https://www.youtube.com/watch?v=h99ReCGX_qg`
+Demo en video: [https://www.youtube.com/watch?v=h99ReCGX_qg](https://www.youtube.com/watch?v=h99ReCGX_qg)
 
 ## Contenido de la carpeta
 

@@ -36,3 +36,7 @@ python app.py
 En Linux o macOS, activa el entorno con `source .venv/bin/activate` en lugar del script de PowerShell.
 
 **Cómo ejecutar la aplicación** con el detalle completo (entorno, Ollama, variables como `OLLAMA_BASE_URL` y `OLLAMA_MODEL`, Docker, errores frecuentes, etc.) está explicado en el README de la Fase 3: [`Taller1/Fase3/Fase3.md`](Taller1/Fase3/Fase3.md).
+
+**Demo en video** (Fase 3): [https://www.youtube.com/watch?v=h99ReCGX_qg](https://www.youtube.com/watch?v=h99ReCGX_qg)
+
+
