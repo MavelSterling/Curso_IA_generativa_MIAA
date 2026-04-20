@@ -1,0 +1,28 @@
+{
+  "preguntas_frecuentes": [
+    {
+      "pregunta": "Como consulto el estado de mi pedido?",
+      "respuesta": "Debes indicar el numero de seguimiento con formato EM-XXXX para validar estado, fecha estimada y enlace de rastreo."
+    },
+    {
+      "pregunta": "Que pasa si mi pedido aparece retrasado?",
+      "respuesta": "El cliente recibe una actualizacion con fecha estimada ajustada y puede hacer seguimiento en el enlace oficial."
+    },
+    {
+      "pregunta": "Puedo devolver un producto perecedero?",
+      "respuesta": "No. Los productos perecederos estan excluidos de devolucion segun politica."
+    },
+    {
+      "pregunta": "Una botella reutilizable usada tiene devolucion?",
+      "respuesta": "No. La categoria de botellas reutilizables solo admite devolucion si no han sido usadas."
+    },
+    {
+      "pregunta": "Que informacion se necesita para tramitar una devolucion?",
+      "respuesta": "Numero de pedido, motivo de devolucion y estado del producto."
+    },
+    {
+      "pregunta": "Atienden consultas fuera de pedidos, devoluciones o productos?",
+      "respuesta": "Si no hay respaldo documental en la base interna, el caso se debe escalar a un agente humano."
+    }
+  ]
+}
