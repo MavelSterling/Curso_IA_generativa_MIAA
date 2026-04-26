@@ -1,0 +1,14 @@
+services:
+  ecomarket_app:
+    build:
+      context: ..
+      dockerfile: Fase4/Dockerfile
+    image: ecomarket-agent-streamlit:latest
+    ports:
+      - "8501:8501"
+    env_file:
+      - ../Fase2/.env
+    volumes:
+      - ./vectorstore:/app/vectorstore
+    stdin_open: true
+    tty: true
