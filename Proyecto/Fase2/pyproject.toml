@@ -1,0 +1,26 @@
+[project]
+name = "taller2-rag-ecomarket"
+version = "0.1.0"
+description = "Sistema RAG para atencion al cliente de EcoMarket"
+readme = "Fase3.md"
+requires-python = ">=3.10"
+dependencies = [
+    "chromadb>=0.5.5",
+    "langchain>=0.3.0",
+    "langchain-community>=0.3.0",
+    "pytest>=8.0.0",
+    "requests>=2.31.0",
+]
+
+[tool.setuptools]
+py-modules = [
+    "app",
+    "model",
+    "knowledge_base",
+    "rag_engine",
+    "prompts",
+]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"

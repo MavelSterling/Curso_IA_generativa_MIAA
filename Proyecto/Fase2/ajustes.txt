@@ -1,0 +1,60 @@
+Ajusta el código del Taller 2 de EcoMarket para implementar la Fase 2 del Proyecto Final.
+
+El proyecto actual ya tiene un sistema RAG funcional con `knowledge_base.py`, `rag_engine.py`, `prompts.py`, `model.py`, ChromaDB local, pruebas y Docker. Debes mantener ese RAG funcionando y extenderlo con un agente de IA para automatizar devoluciones.
+
+Implementa:
+1. `return_service.py` con funciones simuladas:
+   - `consultar_estado_pedido`
+   - `verificar_elegibilidad_producto`
+   - `generar_etiqueta_devolucion`
+
+2. `agent_tools.py` con tools:
+   - `responder_con_rag`
+   - `tool_consultar_estado_pedido`
+   - `tool_verificar_elegibilidad_producto`
+   - `tool_generar_etiqueta_devolucion`
+
+3. `agent_prompts.py` con el prompt del sistema del agente.
+
+4. `agent.py` con la clase `EcoMarketAgent`, que:
+   - Reciba una instancia de `RAGEngine`.
+   - Clasifique intención entre `rag_query` y `return_process`.
+   - Use RAG para preguntas informativas.
+   - Use tools para devoluciones.
+   - Solicite datos faltantes.
+   - Consulte pedido.
+   - Verifique elegibilidad.
+   - Genere etiqueta solo si el producto es elegible.
+   - Maneje errores amigablemente.
+
+5. `agent_logger.py` para guardar logs JSONL en `logs/agent_actions.jsonl`.
+
+6. `agent_cli.py` o ajuste en `app.py` para probar el agente por consola.
+
+7. `smoke_agent_check.py` para validar:
+   - Consulta informativa.
+   - Datos faltantes.
+   - Devolución exitosa.
+   - Pedido en tránsito.
+   - Producto inexistente.
+   - Producto fuera de plazo.
+
+8. Pruebas:
+   - `tests/test_return_service.py`
+   - `tests/test_agent.py`
+
+9. Actualiza el README con:
+   - Archivos nuevos.
+   - Tools del agente.
+   - Flujo de devolución.
+   - Ejecución por consola.
+   - Ejecución de pruebas.
+   - Prompts para sustentación.
+
+Restricciones:
+- No romper el RAG existente.
+- No eliminar archivos del Taller 2.
+- No inventar pedidos, productos, etiquetas ni políticas.
+- Todas las respuestas deben ser en español.
+- La etiqueta solo se genera si la elegibilidad es verdadera.
+- El código debe quedar listo para conectarse en Fase 4 con Streamlit

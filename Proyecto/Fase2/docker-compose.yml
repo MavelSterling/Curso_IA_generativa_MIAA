@@ -1,0 +1,8 @@
+services:
+  taller2_rag:
+    build: .
+    image: taller2-rag-ecomarket:latest
+    stdin_open: true
+    tty: true
+    env_file:
+      - .env
