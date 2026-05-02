@@ -1,6 +1,7 @@
 import sys
 
 import model as llm
+from agent import EcoMarketAgent
 from rag_engine import RAGEngine
 
 
@@ -22,12 +23,13 @@ Comandos:
 
 
 def chat_loop() -> None:
-    print("=== EcoMarket RAG - Atencion al cliente ===")
+    print("=== EcoMarket Agent - Atencion al cliente ===")
     print(f"Modelo: {llm.resolve_model_once()} (servido por endpoint Azure)")
-    print("Base vectorial: ChromaDB local")
+    print("Base vectorial: ChromaDB local + flujo de devoluciones")
     print("Escribe 'ayuda' para ver ejemplos o 'salir' para terminar.\n")
 
     rag = RAGEngine()
+    agent = EcoMarketAgent(rag_engine=rag)
 
     while True:
         try:
@@ -48,11 +50,15 @@ def chat_loop() -> None:
             continue
         if cmd == "reindexar":
             rag = RAGEngine(force_reindex=True)
+            agent = EcoMarketAgent(rag_engine=rag)
             print("Indice reconstruido correctamente.")
             continue
 
         try:
-            response = rag.answer(user_input)
+            response = agent.run(
+                user_input=user_input,
+                metadata={"interaction_type": "Automatico"},
+            )
         except RuntimeError as err:
             print(f"\nError: {err}\n")
             continue

@@ -23,18 +23,48 @@ st.set_page_config(
 # Estilos personalizados
 st.markdown("""
     <style>
-    .main {
-        background-color: #f5f7f9;
+    .main > div {
+        padding-top: 1.2rem;
     }
+
+    .block-container {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+        max-width: 1200px;
+    }
+
+    [data-testid="stSidebar"] {
+        border-right: 1px solid rgba(128, 128, 128, 0.2);
+    }
+
+    .app-subtitle {
+        margin-top: -0.2rem;
+        margin-bottom: 1rem;
+        opacity: 0.9;
+    }
+
     .stTextArea textarea {
-        font-size: 1.1rem;
+        font-size: 1rem;
     }
+
+    .stSelectbox, .stTextInput, .stTextArea {
+        margin-bottom: 0.3rem;
+    }
+
+    .response-title {
+        margin-top: 0.8rem;
+        margin-bottom: 0.4rem;
+    }
+
     .agent-response {
-        background-color: #ffffff;
-        padding: 20px;
-        border-radius: 10px;
+        background-color: rgba(30, 41, 59, 0.22);
+        color: rgb(241, 245, 249);
+        padding: 16px;
+        border-radius: 12px;
+        border: 1px solid rgba(76, 175, 80, 0.45);
         border-left: 5px solid #4CAF50;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        line-height: 1.5;
+        white-space: pre-wrap;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -85,9 +115,13 @@ with st.sidebar:
 
 # Cuerpo principal
 st.title("🌿 Agente de Devoluciones EcoMarket")
-st.markdown("Bienvenido al asistente inteligente de EcoMarket. Puedo ayudarte con información sobre nuestras políticas o procesar tus devoluciones de forma automática.")
+st.markdown(
+    '<p class="app-subtitle">Bienvenido al asistente inteligente de EcoMarket. '
+    "Puedo ayudarte con información sobre nuestras políticas o procesar tus devoluciones de forma automática.</p>",
+    unsafe_allow_html=True,
+)
 
-col1, col2 = st.columns([2, 1])
+col1, col2 = st.columns([3, 2], gap="large")
 
 with col1:
     user_input = st.text_area(
@@ -142,7 +176,7 @@ with col1:
                     })
                     
                     # Mostrar respuesta
-                    st.markdown("### 🤖 Respuesta del Agente")
+                    st.markdown('<h3 class="response-title">🤖 Respuesta del Agente</h3>', unsafe_allow_html=True)
                     st.markdown(f'<div class="agent-response">{response}</div>', unsafe_allow_html=True)
                     
                 except Exception as e:

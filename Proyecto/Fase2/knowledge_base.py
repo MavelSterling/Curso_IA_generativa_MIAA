@@ -121,17 +121,39 @@ def build_embeddings_model() -> Embeddings:
     return HashEmbeddings()
 
 
+def _has_indexed_documents(store: Chroma) -> bool:
+    try:
+        payload = store.get(limit=1)
+    except Exception:
+        return False
+    ids = payload.get("ids") or []
+    return len(ids) > 0
+
+
+def _clear_vectorstore_dir(path: Path) -> None:
+    if not path.exists():
+        return
+    for child in path.iterdir():
+        if child.is_dir():
+            shutil.rmtree(child)
+        else:
+            child.unlink()
+
+
 def build_or_load_vectorstore(force_reindex: bool = False) -> Chroma:
     embeddings = build_embeddings_model()
     if force_reindex and VECTORSTORE_DIR.exists():
-        shutil.rmtree(VECTORSTORE_DIR)
+        _clear_vectorstore_dir(VECTORSTORE_DIR)
 
     if VECTORSTORE_DIR.exists():
-        return Chroma(
+        store = Chroma(
             persist_directory=str(VECTORSTORE_DIR),
             embedding_function=embeddings,
             collection_name="ecomarket_knowledge",
         )
+        if _has_indexed_documents(store):
+            return store
+        _clear_vectorstore_dir(VECTORSTORE_DIR)
 
     source_documents = load_knowledge_documents()
     if not source_documents:

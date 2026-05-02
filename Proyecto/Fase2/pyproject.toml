@@ -1,8 +1,8 @@
 [project]
 name = "taller2-rag-ecomarket"
 version = "0.1.0"
-description = "Sistema RAG para atencion al cliente de EcoMarket"
-readme = "Fase3.md"
+description = "Agente de IA EcoMarket con RAG y automatizacion de devoluciones"
+readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "chromadb>=0.5.5",
@@ -15,10 +15,16 @@ dependencies = [
 [tool.setuptools]
 py-modules = [
     "app",
+    "agent",
+    "agent_logger",
+    "agent_prompts",
+    "agent_tools",
     "model",
     "knowledge_base",
     "rag_engine",
     "prompts",
+    "return_service",
+    "smoke_agent_check",
 ]
 
 [build-system]

@@ -7,12 +7,12 @@ ENV PYTHONUNBUFFERED=1 \
     AZURE_CHAT_MODEL_VERSION=1
 
 # Copiar archivos de la Fase 2 (necesarios para el motor RAG y el Agente)
-COPY Proyecto/Fase2/pyproject.toml ./
-COPY Proyecto/Fase2/*.py ./
-COPY Proyecto/Fase2/knowledge/ ./knowledge/
+COPY Fase2/pyproject.toml ./
+COPY Fase2/*.py ./
+COPY Fase2/knowledge/ ./knowledge/
 
 # Copiar archivos de la Fase 4 (Streamlit)
-COPY Proyecto/Fase4/streamlit_app.py ./
+COPY Fase4/streamlit_app.py ./
 
 # Instalar dependencias
 # Se instala streamlit adicionalmente a las dependencias de pyproject.toml
